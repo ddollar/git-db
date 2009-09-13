@@ -59,7 +59,7 @@ class GitDB::Git::Pack
 
     io.read(20)
 
-    objects.values
+    objects.values.compact
   end
 
   def write(entries)

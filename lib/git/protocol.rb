@@ -28,13 +28,13 @@ class GitDB::Git::Protocol
       return
     end
     data = reader.read(length)
-    #GitDB.log("GOT DATA: #{data.inspect}")
+    GitDB.log("GOT DATA: #{data.inspect}")
     data
   end
 
   def write_command(command)
     raw_command = encode_command(command)
-    GitDB.log("WRITING COMMAND: #{raw_command.inspect}")
+    GitDB.log("WWRITING COMMAND: #{raw_command.inspect}")
     writer.print raw_command
     writer.flush
   end

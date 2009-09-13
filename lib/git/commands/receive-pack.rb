@@ -9,8 +9,8 @@ class GitDB::Git::Commands::ReceivePack
 
     needs_capabilities = true
     each_git_ref do |ref, sha|
-      #write_ref(ref, sha, needs_capabilities)
-      #needs_capabilities = false
+      write_ref(ref, sha, needs_capabilities)
+      needs_capabilities = false
     end
     write_ref("capabilities^{}", null_sha1) if needs_capabilities
     io.write_eof
@@ -36,6 +36,7 @@ class GitDB::Git::Commands::ReceivePack
     
     unless new_shas.reject { |sha| sha == null_sha1 }.length.zero?
       while (entries = io.read_pack)
+        GitDB.log("ENTRIES: #{entries.inspect}")
         entries.each do |entry|
           filename = "objects/#{entry.sha[0..1]}/#{entry.sha[2..-1]}"
           write_git_file(filename, Zlib::Deflate.deflate(entry.raw))

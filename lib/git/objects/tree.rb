@@ -27,7 +27,7 @@ class GitDB::Git::Objects::Tree < GitDB::Git::Objects::Base
 private ######################################################################
 
   def inspect_arguments
-    [:entries, :data]
+    [:entries]
   end
 
   def read_until(stream, separator)
