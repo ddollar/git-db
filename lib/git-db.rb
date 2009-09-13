@@ -58,7 +58,10 @@ module GitDB;
 
   def self.get_object(repo, sha)
     doc = database(repo).view('objects/all', :key => sha)['rows'].first
-    doc ? decode_object(doc['value']) : nil
+    if doc
+      doc = decode_object(doc['value'])
+      object = GitDB::Git::Objects.new_from_type(doc['type'], doc['data'])
+    end
   end
 
   def self.encode_object(doc)

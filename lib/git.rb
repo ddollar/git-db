@@ -31,6 +31,10 @@ module GitDB::Git;
     sha
   end
 
+  def self.null_sha1
+    "0000000000000000000000000000000000000000"
+  end
+
 end
 
 require 'git/commands'
