@@ -65,24 +65,23 @@ class GitDB::Git::Pack
   def write(entries)
     buffer = ""
     signature = ["PACK", 2, entries.length].pack("a4NN")
-    GitDB.log("SIGNATURE: #{signature}")
-    #io.write(signature)
+    #GitDB.log("SIGNATURE: #{signature}")
+    io.write(signature)
     buffer << signature
     
     entries.each do |entry|
       header = pack_pack_header(entry.type, entry.data.length)
-      GitDB.log("HEADER: #{header.inspect}")
-      #io.write(header)
+      #GitDB.log("HEADER: #{header.inspect}")
+      io.write(header)
       buffer << header
       compressed = Zlib::Deflate.deflate(entry.data)
-      #io.write(compressed)
+      io.write(compressed)
       buffer << compressed
     end
     
-    GitDB.log("BUFFER: #{buffer.inspect}")
+    #GitDB.log("BUFFER: #{buffer.inspect}")
     signature = Git::hex_to_sha1(Digest::SHA1.hexdigest(buffer))
-    GitDB.log("SIGNATURE: #{signature.inspect}")
-    io.write(buffer)
+    #GitDB.log("SIGNATURE: #{signature.inspect}")
     io.write(signature)
     io.flush
   end

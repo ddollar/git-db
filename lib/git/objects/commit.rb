@@ -8,4 +8,42 @@ class GitDB::Git::Objects::Commit < GitDB::Git::Objects::Base
     Git::OBJ_COMMIT
   end
 
+  def message
+    data.split("\n\n", 2).last
+  end
+
+  def author
+    attributes['author'].first
+  end
+
+  def committer
+    attributes['committer'].first
+  end
+
+  def tree
+    attributes['tree'].first
+  end
+
+  def parents
+    attributes['parent']
+  end
+
+private ######################################################################
+
+  def inspect_arguments
+    [:tree, :parents, :author, :committer, :message]
+  end
+
+  def attributes
+    @attributes ||= begin
+      attributes = data.split("\n\n", 2).first
+      attributes.split("\n").inject({}) do |hash, line|
+        key, value = line.split(' ', 2)
+        hash[key] ||= []
+        hash[key]  << value
+        hash
+      end
+    end
+  end
+
 end

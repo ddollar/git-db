@@ -10,8 +10,9 @@ class GitDB::Git::Objects::Tree < GitDB::Git::Objects::Base
         perms = read_until(stream, ' ').to_i
         name  = read_until(stream, 0.chr)
         sha   = Git.sha1_to_hex(stream.read(20))
+        entries << GitDB::Git::Objects::Entry.new(sha, perms, name)
       end
-      entries << GitDB::Git::Objects::Entry.new(sha, perms, name)
+      entries
     end
   end
 
@@ -26,7 +27,7 @@ class GitDB::Git::Objects::Tree < GitDB::Git::Objects::Base
 private ######################################################################
 
   def inspect_arguments
-    [:entries]
+    [:entries, :data]
   end
 
   def read_until(stream, separator)

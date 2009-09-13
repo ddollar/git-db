@@ -6,65 +6,108 @@ class GitDB::Git::Commands::UploadPack
   def execute(args)
     repository = args.first
     raise ArgumentError, "repository required" unless repository
+    
+    #execute_transcript
+    execute_real
+  end
 
+  def execute_transcript
+    cmd = GitDB::Git::Protocol.new(IO.popen("/opt/local/bin/git-upload-pack '/tmp/foo'", 'r+'))
+    
+    while (data = cmd.read_command)
+      GitDB.log("CMD COMMAND: #{data}")
+      io.write_command(data)
+    end
+    io.write_eof
+    
+    while (data = io.read_command)
+      GitDB.log("IO COMMAND: #{data}")
+      cmd.write_command(data)
+    end
+    cmd.write_eof
+    
+    data = io.reader.read(9)
+    GitDB.log("READ FROM IO: #{data.inspect}")
+    cmd.writer.write(data)
+    
+    while (data = cmd.read_command)
+      GitDB.log("CMD COMMAND: #{data.inspect}")
+      io.write_command(data)
+      GitDB.log('weee')
+      if data[0] == 1
+        GitDB.log("ITS A PACK!")
+        pack = data[1..-1]
+        unpacker = GitDB::Git::Pack.new(StringIO.new(pack))
+        unpacker.read
+      end
+    end
+    io.write_eof
+    
+    while (data = cmd.read_command)
+      GitDB.log("CMD COMMAND: #{data}")
+      io.write_command(data)
+    end
+    io.write_eof
+  end
+
+  def execute_real
+    head_ref do |ref, sha|
+      write_ref(ref, sha)
+    end
     each_git_ref do |ref, sha|
       write_ref(ref, sha)
       #write_ref(ref, sha.gsub('9', '1'))
     end
     io.write_eof
-
+    
     shas = []
-
+    
     while (data = io.read_command)
+      GitDB.log("GOT COMMAND: #{data}")
       command, sha, options = data.split(' ', 3)
-      # GitDB.log("COMMAND: #{command}")
-      # GitDB.log("SHA: #{sha}")
-      # GitDB.log("OPTIONS: #{options}")
-      shas << sha
-    end
-
-    io.write_command "NAK\n"    
-
-    shas.each do |sha|
-      #io.write_command("ACK #{sha}\n")
-      data = read_git_object(sha)
-      entry = case data.split(' ', 2).first
-        when 'commit' then GitDB::Git::Objects::Commit.new(data)
-      end
-      io.write_pack([entry])
-    end
-
-    while (data = io.read_command)
-      command, sha, options = data.split(' ', 3)
-      GitDB.log("COMMAND: #{command}")
-      GitDB.log("SHA: #{sha}")
-      GitDB.log("OPTIONS: #{options}")
       shas << sha
     end
     
-    # while (data = io.read_command)
-    #   command, sha, options = data.split(' ', 3)
-    #   # GitDB.log("COMMAND: #{command}")
-    #   # GitDB.log("SHA: #{sha}")
-    #   # GitDB.log("OPTIONS: #{options}")
-    #   if command == 'done'
-    #     io.write_command "NAK\n"
-    #     break
-    #   else
-    #     io.write_command "ACK #{sha}\n"
-    #   end
-    # end
+    data = io.read_command
+    io.write_command("NAK\n")
+    
+    packer = GitDB::Git::Protocol.new(StringIO.new)
+    
+    entries = []
+    shas_to_read = shas
+    shas_read = []
 
-    # entries = shas.map do |sha|
-    #   data = read_git_object(sha)
-    #   case data.split(' ', 2).first
-    #     when 'commit' then GitDB::Git::Objects::Commit.new(data)
-    #   end
-    # end
-    # 
-    # #GitDB.log(entries.map { |e| e.inspect })
-    # 
-    # io.write_pack(entries)
+    while shas_to_read.length > 0
+      sha = shas_to_read.shift
+      next if shas_read.include?(sha)
+      shas_read << sha
+
+      raw_data = read_git_object(sha)
+      type = raw_data.split(" ").first
+      data = raw_data.split("\000", 2).last
+
+      #GitDB.log("SHADATA: #{data.inspect}")
+      case type
+        when 'commit' then
+          commit = GitDB::Git::Objects::Commit.new(data)
+          shas_to_read << commit.tree
+          shas_to_read += commit.parents if commit.parents
+          entries << commit
+        when 'tree' then
+          tree = GitDB::Git::Objects::Tree.new(data)
+          shas_to_read += tree.entries.map { |e| e.sha }
+          entries << tree
+        when 'blob' then
+          blob = GitDB::Git::Objects::Blob.new(data)
+          entries << blob
+        else
+          raise "UNKNOWN!! #{type}"
+      end      
+    end
+
+    #GitDB.log(entries.map { |e| e.inspect })
+
+    io.write_pack(entries)
   end
 
 private
@@ -87,6 +130,14 @@ private
       ref = ref.gsub('/tmp/foo/.git/', '')
       yield ref, sha
     end
+  end
+
+  def head_ref(&block)
+    sha = File.read("/tmp/foo/.git/HEAD").strip
+    if sha =~ /ref: (.+)/
+      sha = File.read("/tmp/foo/.git/#{$1}")
+    end
+    yield "HEAD", sha
   end
 
   def delete_git_file(filename)

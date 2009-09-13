@@ -2,18 +2,18 @@ require 'stringio'
 
 class GitDB::Git::Objects::Entry < GitDB::Git::Objects::Base
 
-  attr_reader :sha, :permissions, :data
+  attr_reader :sha, :permissions, :name
 
-  def initialize(sha, permissions, data)
+  def initialize(sha, permissions, name)
     @sha = sha
     @permissions = permissions
-    @data = data
+    @name = name
   end
 
 private ######################################################################
 
   def inspect_arguments
-    [:permissions, :data]
+    [:permissions, :name]
   end
 
 end
