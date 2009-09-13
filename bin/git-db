@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+
+$:.unshift('/Users/david/Code/git-db/lib')
+require 'git-db'
+include GitDB
+
+# def execute(log, command)
+#   log.puts "EXECUTING: #{command}"
+# #   exec command
+#   IO.popen(command, 'r+') do |io|
+#     output = io.readpartial(5000)
+#     log.puts "OUTPUT: #{output}"
+#     puts output
+#     STDOUT.flush
+#     until STDIN.eof?
+#       read = STDIN.readpartial(5000)
+#       log.puts "READ: #{read}"
+#       io.print read
+#       io.flush
+#     end
+#     #output = io.readpartial(5000)
+#     #log.puts "OUTPUT: #{output}"
+#   end
+# end
+
+GitDB.log(ENV.inspect)
+
+git_command = ENV['SSH_ORIGINAL_COMMAND'].match(/git-(.+) '(.+)'/)
+
+if git_command
+  command    = git_command[1]
+  repository = git_command[2]
+
+  Git::Commands.execute(command, [repository])
+end
+
+# File.open('/tmp/git-db.log', 'w') do |log|
+#   log.puts ENV.inspect
+#   return unless ENV['SSH_ORIGINAL_COMMAND']
+# 
+# 
+# 
+#     log.puts "COMMAND: #{command}  REPOSITORY: #{repository}"
+#     
+#     execute(log, "/opt/local/bin/#{command} /tmp/foo")
+#   end
+# 
+#   #log.puts command.inspect
+# 
+#   # IO.popen("/opt/local/bin/#{ENV['SSH_ORIGINAL_COMMAND']}") do |command|
+#   #   file.puts command.read
+#   # end
+# end
+# 
