@@ -4,33 +4,49 @@ CouchDB-based git server, avoids the filesystem. (VERY ALPHA)
 
 == Installation
 
+* Install CouchDB on <tt>localhost</tt>, and start it up.
+
 * Install the gem
 
-  $ gem install ddollar-git-db
+ $ gem install ddollar-git-db
 
 * Create a <tt>git</tt> user. (Name can be whatever you like)
+
 * Set a home directory for the user.
+
 * Set up the <tt>git</tt> user's authorized_keys2 file: (modify the command to match your gem particulars)
 
-  # ~/.git/.ssh/authorized_keys2
-  command="/usr/bin/git-db david",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty <your ssh public key>
+ # ~/.git/.ssh/authorized_keys2
+ command="/usr/bin/git-db",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty <your ssh public key>
 
 * Add your localhost as a remote to an existing project and push
 
-  $ git remote add test-git-db git@localhost:my-repo.git
-  $ git push test-git-db master
+ $ git remote add test-git-db git@localhost:my-repo.git
+ $ git push test-git-db master
+
+* Go look at the data in CouchDB
+
+ http://127.0.0.1:5984/_utils/database.html?gitdb-my-repo
+
+* Clone your repository somewhere else and examine it
+
+ $ git clone git@localhost:my-repo.git /tmp/my-repo
 
 * Please report any problems on the issue tracker.
+
+== TODO
+
+* Tests
+* Refactor and clean up (experimenting with binary protocols can make things a bit messy)
+* Authentication tie-in
+* Never look at a raw git pack file again
 
 == Note on Patches/Pull Requests
 
 * Fork the project.
 * Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
+* Add tests for it. This is important so I don't break it in a future version unintentionally.
 * Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but
-   bump version in a commit by itself I can ignore when I pull)
 * Send me a pull request. Bonus points for topic branches.
 
 == Copyright
