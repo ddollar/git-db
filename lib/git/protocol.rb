@@ -22,17 +22,17 @@ class GitDB::Git::Protocol
   def read_command
     length = reader.read(4).to_i(16) - 4
     if (length == -4)
-      #GitDB.log('GOT EOF')
+      GitDB.log('GOT EOF')
       return
     end
     data = reader.read(length)
-    #GitDB.log("GOT DATA: #{data}")
+    GitDB.log("GOT DATA: #{data}")
     data
   end
 
   def write_command(command)
     raw_command = encode_command(command)
-    #GitDB.log("WRITING: #{raw_command}")
+    GitDB.log("WRITING COMMAND: #{raw_command}")
     writer.print raw_command
     writer.flush
   end

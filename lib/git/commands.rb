@@ -14,3 +14,4 @@ module GitDB::Git::Commands
 end
 
 require 'git/commands/receive-pack'
+require 'git/commands/upload-pack'

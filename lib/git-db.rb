@@ -3,8 +3,8 @@ require 'logger'
 module GitDB;
 
   def self.logger
-    #@logger ||= File.open("/tmp/git-db.log", "w")
-    @logger ||= STDERR
+    @logger ||= File.open("/tmp/git-db.log", "w")
+    #@logger ||= STDERR
   end
 
   def self.log(message)
