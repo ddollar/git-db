@@ -7,21 +7,21 @@ class GitDB::Git::Objects::Base
   end
 
   def inspect
-    %{#<#{self.class} #{inspect_arguments_as_string}>}
+    %{#<#{self.class} #{inspect_properties}>}
   end
 
   def sha
     Digest::SHA1.hexdigest(raw)
   end
 
-private ######################################################################
-
-  def inspect_arguments
+  def properties
     [:data]
   end
 
-  def inspect_arguments_as_string
-    inspect_arguments.unshift(:sha).map do |argument|
+private ######################################################################
+
+  def inspect_properties
+    properties.unshift(:sha).map do |argument|
       "#{argument}=#{self.send(argument).inspect}"
     end.join(' ')
   end

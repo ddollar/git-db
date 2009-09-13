@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'rubygems'
+
 $:.unshift('/Users/david/Code/git-db/lib')
 require 'git-db'
 include GitDB
@@ -11,6 +13,8 @@ git_command = ENV['SSH_ORIGINAL_COMMAND'].match(/git-(.+) '(.+)'/)
 if git_command
   command    = git_command[1]
   repository = git_command[2]
+
+  repository = repository.gsub(/\.git$/, '')
 
   Git::Commands.execute(command, [repository])
 end

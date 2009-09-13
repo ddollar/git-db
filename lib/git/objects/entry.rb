@@ -10,10 +10,14 @@ class GitDB::Git::Objects::Entry < GitDB::Git::Objects::Base
     @name = name
   end
 
-private ######################################################################
-
-  def inspect_arguments
+  def properties
     [:permissions, :name]
   end
+
+  def to_json
+    { :sha => sha, :permissions => permissions, :name => name }.to_json
+  end
+
+private ######################################################################
 
 end

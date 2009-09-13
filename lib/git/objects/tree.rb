@@ -24,11 +24,11 @@ class GitDB::Git::Objects::Tree < GitDB::Git::Objects::Base
     Git::OBJ_TREE
   end
 
-private ######################################################################
-
-  def inspect_arguments
+  def properties
     [:entries]
   end
+
+private ######################################################################
 
   def read_until(stream, separator)
     data = ""

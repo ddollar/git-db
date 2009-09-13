@@ -28,11 +28,11 @@ class GitDB::Git::Objects::Commit < GitDB::Git::Objects::Base
     attributes['parent']
   end
 
-private ######################################################################
-
-  def inspect_arguments
+  def properties
     [:tree, :parents, :author, :committer, :message]
   end
+
+private ######################################################################
 
   def attributes
     @attributes ||= begin
