@@ -5,13 +5,15 @@
 
 Gem::Specification.new do |s|
   s.name = %q{git-db}
-  s.version = "0.0.1"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Dollar"]
-  s.date = %q{2009-09-12}
+  s.date = %q{2009-09-13}
+  s.default_executable = %q{git-db}
   s.description = %q{Database-based git server}
   s.email = %q{<ddollar@gmail.com>}
+  s.executables = ["git-db"]
   s.extra_rdoc_files = [
     "LICENSE",
      "README.rdoc"
@@ -23,10 +25,27 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
+     "bin/git-db",
      "features/git-db.feature",
      "features/step_definitions/git-db_steps.rb",
      "features/support/env.rb",
+     "git-db.gemspec",
      "lib/git-db.rb",
+     "lib/git.rb",
+     "lib/git/commands.rb",
+     "lib/git/commands/receive-pack.rb",
+     "lib/git/commands/upload-pack.rb",
+     "lib/git/objects.rb",
+     "lib/git/objects/base.rb",
+     "lib/git/objects/blob.rb",
+     "lib/git/objects/commit.rb",
+     "lib/git/objects/entry.rb",
+     "lib/git/objects/tag.rb",
+     "lib/git/objects/tree.rb",
+     "lib/git/pack.rb",
+     "lib/git/protocol.rb",
+     "lib/utility.rb",
+     "lib/utility/counting_io.rb",
      "spec/git-db_spec.rb",
      "spec/spec_helper.rb"
   ]
