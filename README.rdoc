@@ -1,9 +1,29 @@
 = git-db
 
-Description goes here.
+CouchDB-based git server, avoids the filesystem. (VERY ALPHA)
+
+== Installation
+
+* Install the gem
+
+  $ gem install ddollar-git-db
+
+* Create a <tt>git</tt> user. (Name can be whatever you like)
+* Set a home directory for the user.
+* Set up the <tt>git</tt> user's authorized_keys2 file: (modify the command to match your gem particulars)
+
+  # ~/.git/.ssh/authorized_keys2
+  command="/usr/bin/git-db david",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty <your ssh public key>
+
+* Add your localhost as a remote to an existing project and push
+
+  $ git remote add test-git-db git@localhost:my-repo.git
+  $ git push test-git-db master
+
+* Please report any problems on the issue tracker.
 
 == Note on Patches/Pull Requests
- 
+
 * Fork the project.
 * Make your feature addition or bug fix.
 * Add tests for it. This is important so I don't break it in a
