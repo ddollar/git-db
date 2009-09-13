@@ -8,8 +8,8 @@ class GitDB::Git::Commands::UploadPack
     raise ArgumentError, "repository required" unless repository
 
     each_git_ref do |ref, sha|
-      #write_ref(ref, sha)
-      write_ref(ref, sha.gsub('9', '1'))
+      write_ref(ref, sha)
+      #write_ref(ref, sha.gsub('9', '1'))
     end
     io.write_eof
 
@@ -17,45 +17,60 @@ class GitDB::Git::Commands::UploadPack
 
     while (data = io.read_command)
       command, sha, options = data.split(' ', 3)
+      # GitDB.log("COMMAND: #{command}")
+      # GitDB.log("SHA: #{sha}")
+      # GitDB.log("OPTIONS: #{options}")
+      shas << sha
+    end
+
+    io.write_command "NAK\n"    
+
+    shas.each do |sha|
+      #io.write_command("ACK #{sha}\n")
+      data = read_git_object(sha)
+      entry = case data.split(' ', 2).first
+        when 'commit' then GitDB::Git::Objects::Commit.new(data)
+      end
+      io.write_pack([entry])
+    end
+
+    while (data = io.read_command)
+      command, sha, options = data.split(' ', 3)
       GitDB.log("COMMAND: #{command}")
       GitDB.log("SHA: #{sha}")
       GitDB.log("OPTIONS: #{options}")
       shas << sha
-      # old_sha, new_sha, ref = data.split(' ')
-      # ref, report = ref.split(0.chr)
-      # refs << ref
-      # new_shas << new_sha
-      # if new_sha == null_sha1
-      #   delete_git_file(ref)
-      # else
-      #   write_git_file(ref, new_sha)
-      # end
-    end
-
-    io.write_command "NAK"    
-    shas.each do |sha|
-      io.write_command("shallow #{sha}")
     end
     
-    while (data = io.read_command)
-      command, sha, options = data.split(' ', 3)
-      # GitDB.log("COMMAND: #{command}")
-      # GitDB.log("SHA: #{sha}")
-      # GitDB.log("OPTIONS: #{options}")
-      if command == 'done'
-        io.write_command "NAK"
-      else
-        io.write_command "ACK #{sha}"
-      end
-    end
-    io.flush
+    # while (data = io.read_command)
+    #   command, sha, options = data.split(' ', 3)
+    #   # GitDB.log("COMMAND: #{command}")
+    #   # GitDB.log("SHA: #{sha}")
+    #   # GitDB.log("OPTIONS: #{options}")
+    #   if command == 'done'
+    #     io.write_command "NAK\n"
+    #     break
+    #   else
+    #     io.write_command "ACK #{sha}\n"
+    #   end
+    # end
 
+    # entries = shas.map do |sha|
+    #   data = read_git_object(sha)
+    #   case data.split(' ', 2).first
+    #     when 'commit' then GitDB::Git::Objects::Commit.new(data)
+    #   end
+    # end
+    # 
+    # #GitDB.log(entries.map { |e| e.inspect })
+    # 
+    # io.write_pack(entries)
   end
 
 private
 
   def capabilities
-    " thin-pack shallow include-tag"
+    " shallow include-tag"
   end
 
   def io
@@ -78,6 +93,11 @@ private
     filename = "/tmp/foo/.git/#{filename}"
     GitDB.log("REMOVING: #{filename}")
     FileUtils.rm_rf(filename)
+  end
+
+  def read_git_object(sha)
+    filename = "/tmp/foo/.git/objects/#{sha[0..1]}/#{sha[2..-1]}"
+    data = Zlib::Inflate.inflate(File.read(filename))
   end
 
   def write_git_file(filename, data)

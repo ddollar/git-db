@@ -4,4 +4,8 @@ class GitDB::Git::Objects::Commit < GitDB::Git::Objects::Base
     "commit #{data.length}\000#{data}"
   end
 
+  def type
+    Git::OBJ_COMMIT
+  end
+
 end

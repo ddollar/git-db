@@ -6,14 +6,14 @@ class GitDB::Git::Pack
 
   PackObject = Struct.new(:type, :offset, :data)
 
-  attr_reader :reader
+  attr_reader :io
 
-  def initialize(reader)
-    @reader = GitDB::Utility::CountingIO.new(reader)
+  def initialize(io)
+    @io = GitDB::Utility::CountingIO.new(io)
   end
 
   def read
-    header = reader.read(12)
+    header = io.read(12)
     return nil unless header
 
     signature, version, entries = header.unpack("a4NN")
@@ -23,39 +23,31 @@ class GitDB::Git::Pack
     objects = {}
 
     1.upto(entries) do
-      object_offset = reader.offset
+      object_offset = io.offset
 
-      c = reader.read(1)[0]
-      type = (c >> 4) & 7
-      size = (c & 15)
-      shift = 4
-      while ((c & 0x80) != 0)
-        c = reader.read(1)[0]
-        size += ((c & 0x7f) << shift)
-        shift += 7
-      end
+      type, size = unpack_pack_header(io)
 
       object = case type
         when 1 then
-          GitDB::Git::Objects::Commit.new(read_compressed(reader))
+          GitDB::Git::Objects::Commit.new(read_compressed(io))
         when 2 then
-          GitDB::Git::Objects::Tree.new(read_compressed(reader))
+          GitDB::Git::Objects::Tree.new(read_compressed(io))
         when 3 then
-          GitDB::Git::Objects::Blob.new(read_compressed(reader))
+          GitDB::Git::Objects::Blob.new(read_compressed(io))
         when 4 then
-          GitDB::Git::Objects::Tag.new(read_compressed(reader))
+          GitDB::Git::Objects::Tag.new(read_compressed(io))
         when 5 then
           raise 'Invalid Type: 5'
         when 6 then
-          offset = object_offset - unpack_delta_size(reader)
-          patch  = read_compressed(reader)
+          offset = object_offset - unpack_delta_size(io)
+          patch  = read_compressed(io)
           base   = objects[offset]
           base.class.new(apply_patch(base.data, patch))
         when 7 then
           # TODO
-          sha = reader.read(20)
+          sha = io.read(20)
           # base = lookup_by_sha(sha)
-          patch = read_compressed(reader)
+          patch = read_compressed(io)
           # base.class.new(apply_patch(base.data, patch))
           nil
       end
@@ -65,9 +57,34 @@ class GitDB::Git::Pack
 
     GitDB.log(objects.values.map { |o| o.inspect })
 
-    reader.read(20)
+    io.read(20)
 
     objects.values
+  end
+
+  def write(entries)
+    buffer = ""
+    signature = ["PACK", 2, entries.length].pack("a4NN")
+    GitDB.log("SIGNATURE: #{signature}")
+    #io.write(signature)
+    buffer << signature
+    
+    entries.each do |entry|
+      header = pack_pack_header(entry.type, entry.data.length)
+      GitDB.log("HEADER: #{header.inspect}")
+      #io.write(header)
+      buffer << header
+      compressed = Zlib::Deflate.deflate(entry.data)
+      #io.write(compressed)
+      buffer << compressed
+    end
+    
+    GitDB.log("BUFFER: #{buffer.inspect}")
+    signature = Git::hex_to_sha1(Digest::SHA1.hexdigest(buffer))
+    GitDB.log("SIGNATURE: #{signature.inspect}")
+    io.write(buffer)
+    io.write(signature)
+    io.flush
   end
 
 private ######################################################################
@@ -97,7 +114,7 @@ private ######################################################################
            (size > destination_size)
            break
         end
-        data += original[offset..(offset+size-1)]
+        data += original[offset,size]
       elsif (cmd != 0)
         data += patch_stream.read(cmd)
       end
@@ -116,6 +133,18 @@ private ######################################################################
     data
   end
 
+  def pack_pack_header(type, size)
+    data = ""
+    c = (type << 4) | (size & 15);
+    size >>= 4;
+    while (size > 0)
+      data << (c | 0x80).chr
+      c = size & 0x7f;
+      size >>= 7;
+    end
+    data << c.chr
+  end
+
   def unpack_delta_size(stream)
     c = stream.read(1)[0]
     size = (c & 127)
@@ -125,6 +154,19 @@ private ######################################################################
       size = (size << 7) + (c & 127)
     end
     size
+  end
+
+  def unpack_pack_header(stream)
+    c = stream.read(1)[0]
+    type = (c >> 4) & 7
+    size = (c & 15)
+    shift = 4
+    while ((c & 0x80) != 0)
+      c = stream.read(1)[0]
+      size += ((c & 0x7f) << shift)
+      shift += 7
+    end
+    [type, size]
   end
 
   def unpack_size(stream)

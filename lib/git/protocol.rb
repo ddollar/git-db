@@ -20,7 +20,9 @@ class GitDB::Git::Protocol
   end
 
   def read_command
-    length = reader.read(4).to_i(16) - 4
+    length = reader.read(4)
+    return nil unless length
+    length = length.to_i(16) - 4
     if (length == -4)
       GitDB.log('GOT EOF')
       return
@@ -43,6 +45,7 @@ class GitDB::Git::Protocol
   end
 
   def write_eof
+    GitDB.log("WRITING EOF")
     writer.print '0000'
     writer.flush
   end
@@ -51,6 +54,10 @@ class GitDB::Git::Protocol
 
   def read_pack
     GitDB::Git::Pack.new(reader).read
+  end
+
+  def write_pack(entries)
+    GitDB::Git::Pack.new(writer).write(entries)
   end
 
 private ######################################################################

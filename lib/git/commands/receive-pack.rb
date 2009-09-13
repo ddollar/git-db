@@ -9,8 +9,8 @@ class GitDB::Git::Commands::ReceivePack
 
     needs_capabilities = true
     each_git_ref do |ref, sha|
-      write_ref(ref, sha, needs_capabilities)
-      needs_capabilities = false
+      #write_ref(ref, sha, needs_capabilities)
+      #needs_capabilities = false
     end
     write_ref("capabilities^{}", null_sha1) if needs_capabilities
     io.write_eof

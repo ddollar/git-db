@@ -19,6 +19,10 @@ class GitDB::Git::Objects::Tree < GitDB::Git::Objects::Base
     "tree #{data.length}\000#{data}"
   end
 
+  def type
+    Git::OBJ_TREE
+  end
+
 private ######################################################################
 
   def inspect_arguments

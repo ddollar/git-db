@@ -19,6 +19,18 @@ module GitDB::Git;
     hex
   end
 
+  def self.hex_to_sha1(hex)
+    sha = ""
+    len = 0
+    until (len == hex.length)
+      val = (hex[len,   1].to_i(16) << 4)
+      val += hex[len+1, 1].to_i(16)
+      sha << val.chr
+      len += 2
+    end
+    sha
+  end
+
 end
 
 require 'git/commands'
