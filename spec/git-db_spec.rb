@@ -23,7 +23,12 @@ describe "GitDB" do
 
     describe "with DEBUG" do
       before(:each) do
+        @old_debug = ENV["DEBUG"]
         ENV["DEBUG"] = "1"
+      end
+
+      after(:each) do
+        ENV["DEBUG"] = @old_debug
       end
 
       it "logs messages sent to log" do
@@ -39,7 +44,12 @@ describe "GitDB" do
 
     describe "without DEBUG" do
       before(:each) do
+        @old_debug = ENV["DEBUG"]
         ENV["DEBUG"] = nil
+      end
+
+      after(:each) do
+        ENV["DEBUG"] = @old_debug
       end
 
       it "should not log messages sent to log" do
