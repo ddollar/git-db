@@ -7,8 +7,10 @@ class GitDB::Git::Commands::ReceivePack
     repository = args.first
     raise ArgumentError, "repository required" unless repository
 
+    database = GitDB.database(repository)
+
     needs_capabilities = true
-    GitDB.get_refs(repository).each do |ref, sha|
+    database.get_refs.each do |ref, sha|
       GitDB.log("ISAERF #{ref} #{sha}")
       write_ref(ref, sha, needs_capabilities)
       needs_capabilities = false
@@ -27,15 +29,15 @@ class GitDB::Git::Commands::ReceivePack
       new_shas << new_sha
 
       if new_sha == Git.null_sha1
-        GitDB::delete_ref(repository, ref)
+        database.delete_ref(ref)
       else
-        GitDB::write_ref(repository, ref, new_sha)
+        database.write_ref(ref, new_sha)
       end
     end
 
     unless new_shas.reject { |sha| sha == Git.null_sha1 }.length.zero?
       while (entries = io.read_pack)
-        GitDB.write_objects(repository, entries)
+        database.write_objects(entries)
       end
     end
 

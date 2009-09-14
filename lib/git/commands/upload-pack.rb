@@ -7,11 +7,13 @@ class GitDB::Git::Commands::UploadPack
     repository = args.first
     raise ArgumentError, "repository required" unless repository
 
-    #execute_transcript(repository)
-    execute_real(repository)
+    database = GitDB.database(repository)
+
+    #execute_transcript(database)
+    execute_real(database)
   end
 
-  def execute_transcript(repository)
+  def execute_transcript(database)
     cmd = GitDB::Git::Protocol.new(IO.popen("/opt/local/bin/git-upload-pack '/tmp/foo'", 'r+'))
 
     while (data = cmd.read_command)
@@ -38,10 +40,10 @@ class GitDB::Git::Commands::UploadPack
     end
   end
 
-  def execute_real(repository)
-    write_ref 'HEAD', GitDB.get_ref(repository, 'refs/heads/master')['sha']
+  def execute_real(database)
+    write_ref 'HEAD', database.get_ref('refs/heads/master')['sha']
 
-    GitDB.get_refs(repository).each do |ref, sha|
+    database.get_refs.each do |ref, sha|
       write_ref(ref, sha)
     end
     io.write_eof
@@ -73,8 +75,8 @@ class GitDB::Git::Commands::UploadPack
       io.write_command("ACK #{shas_to_ignore.last}\n")
     end
 
-    shas_to_ignore, _ = load_entries(repository, shas_to_ignore, false)
-    shas, entries     = load_entries(repository, shas_to_read, true, shas_to_ignore)
+    shas_to_ignore, _ = load_entries(database, shas_to_ignore, false)
+    shas, entries     = load_entries(database, shas_to_read, true, shas_to_ignore)
 
     GitDB.log(entries.map { |e| e.inspect })
 
@@ -83,7 +85,7 @@ class GitDB::Git::Commands::UploadPack
 
 private
 
-  def load_entries(repository, shas_to_read, keep_entries, shas_to_ignore=[])
+  def load_entries(database, shas_to_read, keep_entries, shas_to_ignore=[])
     entries = []
     shas    = []
 
@@ -95,7 +97,7 @@ private
 
       shas << sha
 
-      object = GitDB.get_object(repository, sha)
+      object = database.get_object(sha)
       GitDB.log("OBJECT: #{object.inspect}")
       data = object.data
 
