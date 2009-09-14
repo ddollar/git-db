@@ -1,16 +1,4 @@
 class GitDB::Objects::Commit < GitDB::Objects::Base
-  
-  def raw
-    "commit #{data.length}\000#{data}"
-  end
-
-  def type
-    GitDB::OBJ_COMMIT
-  end
-
-  def message
-    data.split("\n\n", 2).last
-  end
 
   def author
     attributes['author'].first
@@ -20,8 +8,8 @@ class GitDB::Objects::Commit < GitDB::Objects::Base
     attributes['committer'].first
   end
 
-  def tree
-    attributes['tree'].first
+  def message
+    data.split("\n\n", 2).last
   end
 
   def parents
@@ -30,6 +18,18 @@ class GitDB::Objects::Commit < GitDB::Objects::Base
 
   def properties
     [:tree, :parents, :author, :committer, :message]
+  end
+
+  def raw
+    "commit #{data.length}\000#{data}"
+  end
+
+  def type
+    GitDB::OBJ_COMMIT
+  end
+
+  def tree
+    attributes['tree'].first
   end
 
 private ######################################################################
