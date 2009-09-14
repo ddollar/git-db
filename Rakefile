@@ -11,8 +11,6 @@ begin
     gem.homepage = "http://github.com/ddollar/git-db"
     gem.authors = ["David Dollar"]
     gem.add_development_dependency "rspec"
-    gem.add_development_dependency "yard"
-    gem.add_development_dependency "cucumber"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
