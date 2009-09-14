@@ -16,7 +16,7 @@ CouchDB-based git server, avoids the filesystem. (VERY ALPHA)
 
 * Set up the <tt>git</tt> user's authorized_keys2 file: (modify the command to match your gem particulars)
 
- # ~git/.ssh/authorized_keys2
+ # $HOME/git/.ssh/authorized_keys2
  command="/usr/bin/git-db",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty <your ssh public key>
 
 * Add your localhost as a remote to an existing project and push
