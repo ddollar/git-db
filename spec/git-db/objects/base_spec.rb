@@ -20,4 +20,8 @@ describe "GitDB::Objects::Base" do
     @base.properties.should == [:data]
   end
 
+  it "has default raw" do
+    @base.raw.should == @data
+  end
+
 end
