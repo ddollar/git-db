@@ -1,8 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
-
-$:.unshift('/Users/david/Code/git-db/lib')
 require 'git-db'
 include GitDB
 
