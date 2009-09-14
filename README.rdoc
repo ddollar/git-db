@@ -34,6 +34,14 @@ CouchDB-based git server, avoids the filesystem. (VERY ALPHA)
 
 * Please report any problems on the issue tracker.
 
+== Links
+
+Continuous Integration
+http://runcoderun.com/ddollar/git-db
+
+Documentation
+http://docs.github.com/ddollar/git-db
+
 == TODO
 
 * Tests
