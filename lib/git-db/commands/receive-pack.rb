@@ -37,7 +37,11 @@ class GitDB::Commands::ReceivePack
 
     unless new_shas.reject { |sha| sha == GitDB.null_sha1 }.length.zero?
       while (entries = io.read_pack)
-        database.write_objects(entries)
+
+        # bulk in 50 at a time
+        while (page = entries.shift(50)).length > 0
+          database.write_objects(page)
+        end
       end
     end
 
