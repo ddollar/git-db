@@ -14,8 +14,12 @@ class GitDB::Objects::Entry < GitDB::Objects::Base
     [:permissions, :name]
   end
 
+  def to_hash
+    { :sha => sha, :permissions => permissions, :name => name }
+  end
+
   def to_json
-    { :sha => sha, :permissions => permissions, :name => name }.to_json
+    to_hash.to_json
   end
 
 private ######################################################################

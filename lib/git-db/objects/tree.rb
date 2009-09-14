@@ -2,18 +2,22 @@ require 'stringio'
 
 class GitDB::Objects::Tree < GitDB::Objects::Base
 
+  # TODO: memoize entries
+
   def entries
-    @entries ||= begin
-      entries = []
-      stream = StringIO.new(data)
-      until stream.eof?
-        perms = read_until(stream, ' ').to_i
-        name  = read_until(stream, 0.chr)
-        sha   = GitDB.sha1_to_hex(stream.read(20))
-        entries << GitDB::Objects::Entry.new(sha, perms, name)
-      end
-      entries
+    entries = []
+    stream = StringIO.new(data)
+    until stream.eof?
+      perms = read_until(stream, ' ').to_i
+      name  = read_until(stream, 0.chr)
+      sha   = GitDB.sha1_to_hex(stream.read(20))
+      entries << GitDB::Objects::Entry.new(sha, perms, name)
     end
+    entries
+  end
+
+  def properties
+    [:entries]
   end
 
   def raw
@@ -22,10 +26,6 @@ class GitDB::Objects::Tree < GitDB::Objects::Base
 
   def type
     GitDB::OBJ_TREE
-  end
-
-  def properties
-    [:entries]
   end
 
 private ######################################################################
