@@ -37,7 +37,7 @@ CouchDB-based git server, avoids the filesystem. (VERY ALPHA)
 == Links
 
 * Continuous Integration - http://runcoderun.com/ddollar/git-db
-* Documentation - http://docs.github.com/ddollar/git-db
+* Documentation - http://rdoc.info/projects/ddollar/git-db
 
 == TODO
 
