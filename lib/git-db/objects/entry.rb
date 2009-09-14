@@ -1,6 +1,6 @@
 require 'stringio'
 
-class GitDB::Git::Objects::Entry < GitDB::Git::Objects::Base
+class GitDB::Objects::Entry < GitDB::Objects::Base
 
   attr_reader :sha, :permissions, :name
 

@@ -1,7 +1,7 @@
 require 'fileutils'
 require 'zlib'
 
-class GitDB::Git::Commands::UploadPack
+class GitDB::Commands::UploadPack
 
   def execute(args)
     repository = args.first
@@ -14,7 +14,7 @@ class GitDB::Git::Commands::UploadPack
   end
 
   def execute_transcript(database)
-    cmd = GitDB::Git::Protocol.new(IO.popen("/opt/local/bin/git-upload-pack '/tmp/foo'", 'r+'))
+    cmd = GitDB::Protocol.new(IO.popen("/opt/local/bin/git-upload-pack '/tmp/foo'", 'r+'))
 
     while (data = cmd.read_command)
       GitDB.log("CMD COMMAND: #{data}")
@@ -102,17 +102,17 @@ private
       data = object.data
 
       case object
-        when GitDB::Git::Objects::Commit then
-          commit = GitDB::Git::Objects::Commit.new(data)
+        when GitDB::Objects::Commit then
+          commit = GitDB::Objects::Commit.new(data)
           shas_to_read << commit.tree
           shas_to_read += commit.parents if commit.parents
           entries << commit if keep_entries
-        when GitDB::Git::Objects::Tree then
-          tree = GitDB::Git::Objects::Tree.new(data)
+        when GitDB::Objects::Tree then
+          tree = GitDB::Objects::Tree.new(data)
           shas_to_read += tree.entries.map { |e| e.sha }
           entries << tree if keep_entries
-        when GitDB::Git::Objects::Blob then
-          blob = GitDB::Git::Objects::Blob.new(data)
+        when GitDB::Objects::Blob then
+          blob = GitDB::Objects::Blob.new(data)
           entries << blob if keep_entries
         else
           raise "UNKNOWN TYPE!! #{object.class}"
@@ -127,7 +127,7 @@ private
   end
 
   def io
-    @io ||= GitDB::Git::Protocol.new
+    @io ||= GitDB::Protocol.new
   end
 
   def write_ref(ref, sha, needs_capabilities=true)
@@ -137,4 +137,4 @@ private
 
 end
 
-GitDB::Git::Commands.register 'upload-pack', GitDB::Git::Commands::UploadPack
+GitDB::Commands.register 'upload-pack', GitDB::Commands::UploadPack

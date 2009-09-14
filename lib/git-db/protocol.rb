@@ -1,4 +1,4 @@
-class GitDB::Git::Protocol
+class GitDB::Protocol
 
   attr_reader :reader
   attr_reader :writer
@@ -53,11 +53,11 @@ class GitDB::Git::Protocol
 ## packs #####################################################################
 
   def read_pack
-    GitDB::Git::Pack.new(reader).read
+    GitDB::Pack.new(reader).read
   end
 
   def write_pack(entries)
-    GitDB::Git::Pack.new(writer).write(entries)
+    GitDB::Pack.new(writer).write(entries)
   end
 
 private ######################################################################

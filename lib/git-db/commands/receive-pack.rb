@@ -1,7 +1,7 @@
 require 'fileutils'
 require 'zlib'
 
-class GitDB::Git::Commands::ReceivePack
+class GitDB::Commands::ReceivePack
 
   def execute(args)
     repository = args.first
@@ -15,7 +15,7 @@ class GitDB::Git::Commands::ReceivePack
       write_ref(ref, sha, needs_capabilities)
       needs_capabilities = false
     end
-    write_ref("capabilities^{}", Git.null_sha1) if needs_capabilities
+    write_ref("capabilities^{}", GitDB.null_sha1) if needs_capabilities
     io.write_eof
 
     refs = []
@@ -28,14 +28,14 @@ class GitDB::Git::Commands::ReceivePack
       refs << ref
       new_shas << new_sha
 
-      if new_sha == Git.null_sha1
+      if new_sha == GitDB.null_sha1
         database.delete_ref(ref)
       else
         database.write_ref(ref, new_sha)
       end
     end
 
-    unless new_shas.reject { |sha| sha == Git.null_sha1 }.length.zero?
+    unless new_shas.reject { |sha| sha == GitDB.null_sha1 }.length.zero?
       while (entries = io.read_pack)
         database.write_objects(entries)
       end
@@ -55,7 +55,7 @@ private
   end
 
   def io
-    @io ||= GitDB::Git::Protocol.new
+    @io ||= GitDB::Protocol.new
   end
 
   def write_ref(ref, sha, needs_capabilities=true)
@@ -70,4 +70,4 @@ private
 
 end
 
-GitDB::Git::Commands.register 'receive-pack', GitDB::Git::Commands::ReceivePack
+GitDB::Commands.register 'receive-pack', GitDB::Commands::ReceivePack

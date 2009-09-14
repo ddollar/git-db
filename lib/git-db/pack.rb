@@ -2,7 +2,7 @@ require 'digest/sha1'
 require 'stringio'
 require 'zlib'
 
-class GitDB::Git::Pack
+class GitDB::Pack
 
   PackObject = Struct.new(:type, :offset, :data)
 
@@ -29,13 +29,13 @@ class GitDB::Git::Pack
 
       object = case type
         when 1 then
-          GitDB::Git::Objects::Commit.new(read_compressed(io))
+          GitDB::Objects::Commit.new(read_compressed(io))
         when 2 then
-          GitDB::Git::Objects::Tree.new(read_compressed(io))
+          GitDB::Objects::Tree.new(read_compressed(io))
         when 3 then
-          GitDB::Git::Objects::Blob.new(read_compressed(io))
+          GitDB::Objects::Blob.new(read_compressed(io))
         when 4 then
-          GitDB::Git::Objects::Tag.new(read_compressed(io))
+          GitDB::Objects::Tag.new(read_compressed(io))
         when 5 then
           raise 'Invalid Type: 5'
         when 6 then
@@ -80,7 +80,7 @@ class GitDB::Git::Pack
     end
     
     #GitDB.log("BUFFER: #{buffer.inspect}")
-    signature = Git::hex_to_sha1(Digest::SHA1.hexdigest(buffer))
+    signature = GitDB::hex_to_sha1(Digest::SHA1.hexdigest(buffer))
     #GitDB.log("SIGNATURE: #{signature.inspect}")
     io.write(signature)
     io.flush

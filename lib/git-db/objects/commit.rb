@@ -1,11 +1,11 @@
-class GitDB::Git::Objects::Commit < GitDB::Git::Objects::Base
+class GitDB::Objects::Commit < GitDB::Objects::Base
   
   def raw
     "commit #{data.length}\000#{data}"
   end
 
   def type
-    Git::OBJ_COMMIT
+    GitDB::OBJ_COMMIT
   end
 
   def message

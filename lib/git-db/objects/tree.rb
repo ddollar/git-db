@@ -1,6 +1,6 @@
 require 'stringio'
 
-class GitDB::Git::Objects::Tree < GitDB::Git::Objects::Base
+class GitDB::Objects::Tree < GitDB::Objects::Base
 
   def entries
     @entries ||= begin
@@ -9,8 +9,8 @@ class GitDB::Git::Objects::Tree < GitDB::Git::Objects::Base
       until stream.eof?
         perms = read_until(stream, ' ').to_i
         name  = read_until(stream, 0.chr)
-        sha   = Git.sha1_to_hex(stream.read(20))
-        entries << GitDB::Git::Objects::Entry.new(sha, perms, name)
+        sha   = GitDB.sha1_to_hex(stream.read(20))
+        entries << GitDB::Objects::Entry.new(sha, perms, name)
       end
       entries
     end
@@ -21,7 +21,7 @@ class GitDB::Git::Objects::Tree < GitDB::Git::Objects::Base
   end
 
   def type
-    Git::OBJ_TREE
+    GitDB::OBJ_TREE
   end
 
   def properties

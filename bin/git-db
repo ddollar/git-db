@@ -16,5 +16,5 @@ if git_command
 
   repository = repository.gsub(/\.git$/, '')
 
-  Git::Commands.execute(command, [repository])
+  GitDB::Commands.execute(command, [repository])
 end

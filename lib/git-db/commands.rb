@@ -1,4 +1,4 @@
-module GitDB::Git::Commands
+module GitDB::Commands
 
   def self.execute(command, args=[])
     return unless @commands
@@ -13,5 +13,5 @@ module GitDB::Git::Commands
 
 end
 
-require 'git/commands/receive-pack'
-require 'git/commands/upload-pack'
+require 'git-db/commands/receive-pack'
+require 'git-db/commands/upload-pack'

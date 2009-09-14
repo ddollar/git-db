@@ -1,4 +1,4 @@
-class GitDB::Git::Objects::Base
+class GitDB::Objects::Base
 
   attr_reader :data
 

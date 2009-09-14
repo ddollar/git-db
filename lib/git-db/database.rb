@@ -55,7 +55,7 @@ class GitDB::Database
 
   def get_object(sha)
     raw = get_raw_object(sha)
-    raw ? GitDB::Git::Objects.new_from_type(raw['type'], raw['data']) : nil
+    raw ? GitDB::Objects.new_from_type(raw['type'], raw['data']) : nil
   end
 
   def write_object(object)
