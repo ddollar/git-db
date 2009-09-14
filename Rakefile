@@ -10,8 +10,12 @@ begin
     gem.email = "<ddollar@gmail.com>"
     gem.homepage = "http://github.com/ddollar/git-db"
     gem.authors = ["David Dollar"]
+
+    # development dependencies
     gem.add_development_dependency "rspec"
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+
+    # runtime dependencies
+    gem.add_dependency "couchrest"
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
