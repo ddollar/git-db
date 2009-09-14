@@ -1,9 +1,13 @@
 module GitDB::Commands
 
+  def self.commands
+    @commands
+  end
+
   def self.execute(command, args=[])
-    return unless @commands
-    raise ArgumentError, "Unknown command: #{command}" unless @commands[command]
-    @commands[command].execute(args)
+    return unless commands
+    raise ArgumentError, "Unknown command: #{command}" unless commands[command]
+    commands[command].execute(args)
   end
 
   def self.register(command, klass)
