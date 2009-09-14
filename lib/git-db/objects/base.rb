@@ -10,20 +10,25 @@ class GitDB::Objects::Base
     %{#<#{self.class} #{inspect_properties}>}
   end
 
-  def sha
-    Digest::SHA1.hexdigest(raw)
-  end
-
   def properties
     [:data]
+  end
+
+  def raw
+    data
+  end
+
+  def sha
+    Digest::SHA1.hexdigest(raw)
   end
 
 private ######################################################################
 
   def inspect_properties
-    properties.unshift(:sha).map do |argument|
+    inspectors = properties.unshift(:sha).map do |argument|
       "#{argument}=#{self.send(argument).inspect}"
-    end.join(' ')
+    end
+    inspectors.join(' ')
   end
 
 end

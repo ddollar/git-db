@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe "GitDB" do
+describe "GitDB::Commands" do
 
   it "has a receive-pack command" do
     GitDB::Commands.commands['receive-pack'].should_not be_nil
