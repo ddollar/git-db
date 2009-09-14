@@ -21,14 +21,35 @@ describe "GitDB" do
       GitDB.logger.should respond_to(:puts)
     end
 
-    it "logs messages sent to log" do
-      @logger  = mock(Logger)
-      @message = "Log This"
+    describe "with DEBUG" do
+      before(:each) do
+        ENV["DEBUG"] = "1"
+      end
 
-      GitDB.should_receive(:logger).and_return(@logger)
-      @logger.should_receive(:puts).with(@message)
+      it "logs messages sent to log" do
+        @logger  = mock(Logger)
+        @message = "Log This"
 
-      GitDB.log(@message)
+        GitDB.should_receive(:logger).and_return(@logger)
+        @logger.should_receive(:puts).with(@message)
+
+        GitDB.log(@message)
+      end
+    end
+
+    describe "without DEBUG" do
+      before(:each) do
+        ENV["DEBUG"] = nil
+      end
+
+      it "should not log messages sent to log" do
+        @logger  = mock(Logger)
+        @message = "Log This"
+
+        GitDB.should_not_receive(:logger)
+
+        GitDB.log(@message)
+      end
     end
   end
 

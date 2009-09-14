@@ -49,7 +49,7 @@ module GitDB;
   end
 
   def self.log(message)
-    logger.puts message
+    logger.puts message if ENV["DEBUG"]
   end
 
 ## database ##################################################################
