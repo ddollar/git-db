@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{git-db}
-  s.version = "0.1.2"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Dollar"]
@@ -26,9 +26,6 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "bin/git-db",
-     "features/git-db.feature",
-     "features/step_definitions/git-db_steps.rb",
-     "features/support/env.rb",
      "git-db.gemspec",
      "lib/git-db.rb",
      "lib/git-db/commands.rb",
@@ -48,9 +45,13 @@ Gem::Specification.new do |s|
      "lib/git-db/utility/counting_io.rb",
      "spec/git-db/commands_spec.rb",
      "spec/git-db/objects/base_spec.rb",
+     "spec/git-db/objects/blob_spec.rb",
+     "spec/git-db/objects/commit_spec.rb",
      "spec/git-db/objects/entry_spec.rb",
      "spec/git-db/objects/tag_spec.rb",
      "spec/git-db/objects/tree_spec.rb",
+     "spec/git-db/objects_spec.rb",
+     "spec/git-db/protocol_spec.rb",
      "spec/git-db/utility/counting_io_spec.rb",
      "spec/git-db_spec.rb",
      "spec/rcov.opts",
@@ -65,9 +66,13 @@ Gem::Specification.new do |s|
   s.test_files = [
     "spec/git-db/commands_spec.rb",
      "spec/git-db/objects/base_spec.rb",
+     "spec/git-db/objects/blob_spec.rb",
+     "spec/git-db/objects/commit_spec.rb",
      "spec/git-db/objects/entry_spec.rb",
      "spec/git-db/objects/tag_spec.rb",
      "spec/git-db/objects/tree_spec.rb",
+     "spec/git-db/objects_spec.rb",
+     "spec/git-db/protocol_spec.rb",
      "spec/git-db/utility/counting_io_spec.rb",
      "spec/git-db_spec.rb",
      "spec/spec_helper.rb"
