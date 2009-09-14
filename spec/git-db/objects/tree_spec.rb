@@ -39,4 +39,5 @@ describe "GitDB::Objects::Tree" do
   it "has a type" do
     @tree.type.should == GitDB::OBJ_TREE
   end
+
 end

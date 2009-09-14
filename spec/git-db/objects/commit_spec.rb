@@ -62,21 +62,4 @@ describe "GitDB::Objects::Commit" do
     @commit.type.should == GitDB::OBJ_COMMIT
   end
 
-  #
-  # it "has entries" do
-  #   @tree.entries.first.name.should == @entry1.name
-  #   @tree.entries.last.name.should  == @entry2.name
-  # end
-  #
-  # it "has properties" do
-  #   @tree.properties.should == [:entries]
-  # end
-  #
-  # it "has a raw value" do
-  #   @tree.raw.should == "tree #{@data.length}\000#{@data}"
-  # end
-  #
-  # it "has a type" do
-  #   @tree.type.should == GitDB::OBJ_TREE
-  # end
 end

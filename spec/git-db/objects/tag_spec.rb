@@ -11,4 +11,5 @@ describe "GitDB::Objects::Tag" do
   it "has a type" do
     @tag.type.should == GitDB::OBJ_TAG
   end
+
 end

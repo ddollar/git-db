@@ -22,4 +22,5 @@ describe "GitDB::Objects::Entry" do
   it "converts to json" do
     @entry.to_json.should == @entry.to_hash.to_json
   end
+
 end
