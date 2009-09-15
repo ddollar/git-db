@@ -24,89 +24,79 @@ class GitDB::Pack
 
     1.upto(entries) do
       object_offset = io.offset
-
-      type, size = unpack_pack_header(io)
+      type, size    = unpack_pack_header(io)
 
       object = case type
-        when 1 then
-          GitDB::Objects::Commit.new(read_compressed(io))
-        when 2 then
-          GitDB::Objects::Tree.new(read_compressed(io))
-        when 3 then
-          GitDB::Objects::Blob.new(read_compressed(io))
-        when 4 then
-          GitDB::Objects::Tag.new(read_compressed(io))
-        when 5 then
-          raise 'Invalid Type: 5'
+        when 1 then GitDB::Objects::Commit.new(read_compressed(io))
+        when 2 then GitDB::Objects::Tree.new(read_compressed(io))
+        when 3 then GitDB::Objects::Blob.new(read_compressed(io))
+        when 4 then GitDB::Objects::Tag.new(read_compressed(io))
+        when 5 then raise 'Invalid Type: 5'
         when 6 then
+          # offset delta, find the referred-to pack and apply as a patch
           offset = object_offset - unpack_delta_size(io)
           patch  = read_compressed(io)
           base   = objects[offset]
-          base.class.new(apply_patch(base.data, patch))
+          data   = apply_patch(base.data, patch)
+          base.class.new(data)
         when 7 then
-          # TODO
-          sha = io.read(20)
-          # base = lookup_by_sha(sha)
-          patch = read_compressed(io)
-          # base.class.new(apply_patch(base.data, patch))
-          nil
+          # TODO: patch against sha
+          raise "Type 7 unimplemented, please report"
       end
 
       objects[object_offset] = object
     end
 
-    GitDB.log(objects.values.map { |o| o.inspect })
-
-    io.read(20)
+    # read the checksum, TODO: check the checksum
+    checksum = io.read(20)
 
     objects.values.compact
   end
 
   def write(entries)
-    buffer = ""
-    signature = ["PACK", 2, entries.length].pack("a4NN")
-    #GitDB.log("SIGNATURE: #{signature}")
-    io.write(signature)
-    buffer << signature
-    
+    # build the pack header
+    buffer = ["PACK", 2, entries.length].pack("a4NN")
+
+    # deflate the entries
     entries.each do |entry|
-      header = pack_pack_header(entry.type, entry.data.length)
-      #GitDB.log("HEADER: #{header.inspect}")
-      io.write(header)
-      buffer << header
-      compressed = Zlib::Deflate.deflate(entry.data)
-      io.write(compressed)
-      buffer << compressed
+      buffer << pack_pack_header(entry.type, entry.data.length)
+      buffer << Zlib::Deflate.deflate(entry.data)
     end
-    
-    #GitDB.log("BUFFER: #{buffer.inspect}")
-    signature = GitDB::hex_to_sha1(Digest::SHA1.hexdigest(buffer))
-    #GitDB.log("SIGNATURE: #{signature.inspect}")
-    io.write(signature)
+
+    # calculate a checksum
+    checksum = GitDB::hex_to_sha1(Digest::SHA1.hexdigest(buffer))
+
+    # write and flush the buffer
+    io.write(buffer)
+    io.write(checksum)
     io.flush
   end
 
 private ######################################################################
 
   def apply_patch(original, patch)
-    patch_stream = StringIO.new(patch)
-    source_size = unpack_size(patch_stream)
+    patch_stream     = StringIO.new(patch)
+    source_size      = unpack_size(patch_stream)
     destination_size = unpack_size(patch_stream)
 
     data = ""
 
+    # this pretty much a straight port of the c function in git that does
+    # this. it could probably be refactored, but is maintained for
+    # symmetry (and to detect potential future changes to git)
     until patch_stream.eof?
       offset = size = 0
-      cmd = patch_stream.read(1)[0]
+      cmd    = patch_stream.read(1)[0]
+
       if (cmd & 0x80) != 0
-        offset  = (patch_stream.read(1)[0])       if (cmd & 0x01) != 0
-        offset |= (patch_stream.read(1)[0] << 8)  if (cmd & 0x02) != 0
-        offset |= (patch_stream.read(1)[0] << 16) if (cmd & 0x04) != 0
-        offset |= (patch_stream.read(1)[0] << 24) if (cmd & 0x08) != 0
-        size    = (patch_stream.read(1)[0])       if (cmd & 0x10) != 0
-        size   |= (patch_stream.read(1)[0] << 8)  if (cmd & 0x20) != 0
-        size   |= (patch_stream.read(1)[0] << 16) if (cmd & 0x40) != 0
-        size    = 0x10000                         if size == 0
+        offset  = (patch_stream.read(1)[0])       if (cmd & 0x01).nonzero?
+        offset |= (patch_stream.read(1)[0] << 8)  if (cmd & 0x02).nonzero?
+        offset |= (patch_stream.read(1)[0] << 16) if (cmd & 0x04).nonzero?
+        offset |= (patch_stream.read(1)[0] << 24) if (cmd & 0x08).nonzero?
+        size    = (patch_stream.read(1)[0])       if (cmd & 0x10).nonzero?
+        size   |= (patch_stream.read(1)[0] << 8)  if (cmd & 0x20).nonzero?
+        size   |= (patch_stream.read(1)[0] << 16) if (cmd & 0x40).nonzero?
+        size    = 0x10000                         if size.zero?
 
         if ((offset + size) < size) ||
            ((offset + size) > source_size) ||
@@ -174,7 +164,7 @@ private ######################################################################
       c = stream.read(1)[0]
       size += (c & 127) << shift
       shift += 7
-      break if (c & 128) == 0
+      break if (c & 128).zero?
     end
     size
   end
